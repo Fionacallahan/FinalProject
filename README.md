@@ -1,0 +1,1 @@
+Describes project, how to run project, how project is organized 
