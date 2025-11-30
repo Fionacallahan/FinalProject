@@ -172,13 +172,15 @@ class MyPyTable:
 
         return duplicate_indexes
 
-    def remove_rows_with_missing_values(self):
+    def remove_rows_with_missing_values(self, name):
         """
         Loops through all rows in the table and deletes any rows with missing values 
         """
+        column_index = self.column_names.index(name)
+
         new_table = []
         for row in self.data:
-            if "NA" not in row:
+            if "" != row[column_index]:
                 new_table.append(row)
         self.data = new_table
         
@@ -196,7 +198,7 @@ class MyPyTable:
         # had to add because kept having issues!! 
         for row in self.data:
             value = row[column_index]
-            if value != "NA":
+            if value != "":
                 try:
                     numeric_values.append(float(value))
                 except ValueError:
@@ -210,7 +212,7 @@ class MyPyTable:
 
         # Replace "NA" with average
         for row in self.data:
-            if row[column_index] == "NA":
+            if row[column_index] == "":
                 row[column_index] = avg
 
    
