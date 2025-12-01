@@ -3,9 +3,188 @@ from scipy import stats
 import myutils
 
 from myclassifiers import MyNaiveBayesClassifier,\
-    MyDummyClassifier
+    MyDummyClassifier,\
+    MyDecisionTreeClassifier
 
 # implement test random forest 
+
+
+def test_decision_tree_classifier_fit():
+
+    header_interview = ["level", "lang", "tweets", "phd", "interviewed_well"]
+
+    X_train_interview = [
+        ["Senior", "Java", "no", "no"],
+        ["Senior", "Java", "no", "yes"],
+        ["Mid", "Python", "no", "no"],
+        ["Junior", "Python", "no", "no"],
+        ["Junior", "R", "yes", "no"],
+        ["Junior", "R", "yes", "yes"],
+        ["Mid", "R", "yes", "yes"],
+        ["Senior", "Python", "no", "no"],
+        ["Senior", "R", "yes", "no"],
+        ["Junior", "Python", "yes", "no"],
+        ["Senior", "Python", "yes", "yes"],
+        ["Mid", "Python", "no", "yes"],
+        ["Mid", "Java", "yes", "no"],
+        ["Junior", "Python", "no", "yes"]
+    ]
+    y_train_interview = ["False", "False", "True", "True", "True", "False", "True", "False", "True", "True", "True", "True", "True", "False"]
+
+
+    # the building of the tree using entropy from deskcheck
+    interview_tree_solution =   ["Attribute", "att0",                        
+                                ["Value", "Junior",                     
+                                    ["Attribute", "att3",               
+                                        ["Value", "no",
+                                            ["Leaf", "True", 3, 5]      
+                                        ],
+                                        ["Value", "yes",
+                                            ["Leaf", "False", 2, 5]
+                                        ]
+                                    ]
+                                ],
+                                ["Value", "Mid",
+                                    ["Leaf", "True", 4, 14] 
+                                ],
+                                ["Value", "Senior",
+                                    ["Attribute", "att2",
+                                        ["Value", "no",
+                                            ["Leaf", "False", 3, 5] 
+                                        ],
+                                        ["Value", "yes",
+                                            ["Leaf", "True", 2, 5] 
+                                        ]
+                                    ] 
+                                ]
+                            ]
+    
+
+    myInterviewTree = MyDecisionTreeClassifier()
+    myInterviewTree.fit(X_train_interview, y_train_interview)
+    assert myInterviewTree.tree == interview_tree_solution
+    
+
+    header_phone = ["standing", "job_status", "credit_rating", "buys_iphone"]
+    X_train_phone = [[2, 3, "fair"],
+                     [1, 3, "excellent"], 
+                     [1, 3, "fair"], 
+                     [2, 2, "fair"], 
+                     [2, 1, "fair"], 
+                     [2, 1, "excellent"],
+                     [2, 1, "excellent"],
+                     [1, 2, "fair"], 
+                     [1, 1, "fair"],
+                     [2, 2, "fair"],
+                     [1, 2, "excellent"],
+                     [2, 2, "excellent"], 
+                     [2, 3, "fair"], 
+                     [2, 2, "excellent"], 
+                     [2, 3, "fair"]]
+    y_train_phone = ["yes", "no", "no", "yes", "yes", "no", "yes", "no", "yes", "yes", "yes", "yes", "yes", "no", "yes"]
+
+    # building of tree using entropy from hand 
+    phone_tree_soluti = ["Attribute", "att0", 
+                            ["Value", 1,
+                                ["Attribute", "att1",   
+                                    ["Value", 1, ["Leaf", "yes", 1, 5]],
+                                    ["Value", 2,
+                                        ["Attribute", 'att2', 
+                                            ['Value', 'excellent', 
+                                                ["Leaf", "yes", 1, 2]],
+                                            ['Value', 'fair', 
+                                                ["Leaf", "no", 1, 2]]]
+                                    ],
+                                    ["Value", 3, ["Leaf", "no", 2, 5]]
+                                ]
+                            ],
+                            ["Value", 2,
+                                ["Attribute", "att2", # now att2 makes more sense 
+                                    ["Value", "excellent",
+                                        ['Attribute', 'att1', 
+                                            ['Value', 1, 
+                                                ['Leaf', 'no', 2, 4]],
+                                            ['Value', 2, 
+                                                ['Leaf', 'yes', 2, 4]],
+                                            ['Value', 3, 
+                                                ['Leaf', 'no', 0, 4]]]
+                                    ],
+                                    ["Value", "fair",
+                                        ["Leaf", "yes", 6, 10] # clumps all remaining into one
+                                    ]
+                                ]
+                            ]
+                        ]
+    print("entering phone tree classification")
+    myPhoneTree = MyDecisionTreeClassifier()
+    myPhoneTree.fit(X_train_phone, y_train_phone)
+    assert myPhoneTree.tree == phone_tree_soluti
+
+def test_decision_tree_classifier_predict():
+    header_interview = ["level", "lang", "tweets", "phd", "interviewed_well"]
+
+    X_train_interview = [
+        ["Senior", "Java", "no", "no"],
+        ["Senior", "Java", "no", "yes"],
+        ["Mid", "Python", "no", "no"],
+        ["Junior", "Python", "no", "no"],
+        ["Junior", "R", "yes", "no"],
+        ["Junior", "R", "yes", "yes"],
+        ["Mid", "R", "yes", "yes"],
+        ["Senior", "Python", "no", "no"],
+        ["Senior", "R", "yes", "no"],
+        ["Junior", "Python", "yes", "no"],
+        ["Senior", "Python", "yes", "yes"],
+        ["Mid", "Python", "no", "yes"],
+        ["Mid", "Java", "yes", "no"],
+        ["Junior", "Python", "no", "yes"]
+    ]
+    y_train_interview = ["False", "False", "True", "True", "True", "False", "True", "False", "True", "True", "True", "True", "True", "False"]
+
+    myInterviewTree = MyDecisionTreeClassifier()
+    myInterviewTree.fit(X_train_interview, y_train_interview)
+    # from interview dataset 
+    X1 = ["Junior", "Java", "yes", "no"] 
+    #SHOULD BE True
+    X2 = ["Junior", "Java", "yes", "yes"] 
+    #SHOULD BE false
+    predicted = ["True", "False"]
+
+    predictions = myInterviewTree.predict([X1, X2])
+    assert predictions == predicted
+    
+
+
+    # now for the phone dataset 
+    header_phone = ["standing", "job_status", "credit_rating", "buys_iphone"]
+    X_train_phone = [[2, 3, "fair"],
+                     [1, 3, "excellent"], 
+                     [1, 3, "fair"], 
+                     [2, 2, "fair"], 
+                     [2, 1, "fair"], 
+                     [2, 1, "excellent"],
+                     [2, 1, "excellent"],
+                     [1, 2, "fair"], 
+                     [1, 1, "fair"],
+                     [2, 2, "fair"],
+                     [1, 2, "excellent"],
+                     [2, 2, "excellent"], 
+                     [2, 3, "fair"], 
+                     [2, 2, "excellent"], 
+                     [2, 3, "fair"]]
+    y_train_phone = ["yes", "no", "no", "yes", "yes", "no", "yes", "no", "yes", "yes", "yes", "yes", "yes", "no", "yes"]
+
+    X3 = [2, 2, "fair"] 
+    # SHOULD be yes 
+    X4 = [1, 1, "excellent"] 
+    # SHOULD be yes based on majority vote and tree structure 
+    myPhoneTree = MyDecisionTreeClassifier()
+    myPhoneTree.fit(X_train_phone, y_train_phone)
+    predictions = myPhoneTree.predict([X3, X4])
+    predicted = ["yes", "yes"]
+    assert predicted == predictions
+
+
 
 
 
