@@ -6,20 +6,15 @@ from collections import Counter
 class MyRandomForestClassifier:
     """
     Represents a Random Forest classifier 
-
-    Attributes: 
+es: 
 
 
     Notes: 
+    Attribut
 
 
     """
     def __init__(self, n_trees=10, max_depth=10, min_samples_split=2, n_features=None):
-        """
-        Docstring for __init__
-        
-        :param self: Description
-        """
         self.n_trees = n_trees
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
@@ -36,6 +31,7 @@ class MyRandomForestClassifier:
 
     def _bootstrap_samples(self, X, y):
         n_samples = len(X)
+        np.random.seed(0)
         indexes = np.random.choice(n_samples, n_samples, replace=True)
         X_sample = [X[i] for i in indexes]
         y_sample = [y[i] for i in indexes]
@@ -49,13 +45,9 @@ class MyRandomForestClassifier:
         return most_common
 
     def predict(self, X):
-        #predictions = np.array[[tree.predict(X) for tree in self.trees]]
         predictions = np.array([tree.predict(X) for tree in self.trees])
         # change structure: 
         # want all predictions from same sample for different trees in same inner list 
-        #tree_preds = np.swapaxes(predictions, 0, 1)
-        #predictions = np.array([self._most_common_label(tree_preds) for pred in tree_preds])
-        #return predictions
         tree_preds = np.swapaxes(predictions, 0, 1)  # shape: (n_samples, n_trees)
         final_preds = [self._most_common_label(sample_preds) for sample_preds in tree_preds]
         return np.array(final_preds)
@@ -101,8 +93,6 @@ class MyDecisionTreeClassifier:
             Store the tree in the tree attribute.
             Use attribute indexes to construct default attribute names (e.g. "att0", "att1", ...).
         """
-        # train = [X_train[i] + [y_train[i]] for i in range(len(X_train))]
-        # print(train)
         header_length = len(X_train[0])
         header = []
         for i in range(header_length):
@@ -123,10 +113,6 @@ class MyDecisionTreeClassifier:
         available_attributes = header.copy()
         tree = myutils.tdidt(train, available_attributes, header, attribute_domains)
         self.tree = tree
-
-        # call decision_rules
-
-        # self.print_decision_rules(header)
 
 
     def predict(self, X_test):
