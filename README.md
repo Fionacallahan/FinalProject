@@ -1,5 +1,5 @@
 ## What is our project?
-* To what extent do lifestyle style choices affect the condition of people's health 
+* Exploring: To what extent do lifestyle style choices affect the condition of people's health?
 * We chose analyze risk factors in the health field by using a kaggle dataset in the form of a csv file 
 
 
