@@ -2,6 +2,7 @@ import numpy as np
 import evaluation
 from collections import Counter
 import math
+import matplotlib.pyplot as plt
 
 
 def bin_bmi(value):
@@ -344,4 +345,120 @@ def tdidt(current_instances, available_atts, header, attribute_domains):
         tree.append(value_subtree)
     return tree
 
+
+def bar_graph(table):
+    """
+    creates a bar graph exploring age distributions
+    
+    table: data we are pulling from 
+    """
+    # bargraph
+    ages = []
+    for row in table:
+        age = row[0]
+        ages.append(int(age))
+
+    bins = [0, 20, 30, 40, 50, 60]
+    labels = ['0-19', '20-29', '30-39', '40-49', '50-59']
+    age_counts = [0] * (len(bins) - 1)
+
+    for age in ages: 
+        for i in range(len(bins) - 1):
+            if bins[i] <= age < bins[i+1]:
+                age_counts[i] += 1
+                break
+
+    plt.figure()
+    plt.bar(labels, age_counts, color='blue')
+    plt.title("Distribution of Ages in Health Training Data")
+    plt.xlabel("Age Ranges")
+    plt.ylabel("Number of People")
+    plt.show()
+
         
+def pie_graph(table):
+    """
+    creates a pie chart exploring BMI indexes 
+    
+    table: data we are pulling from 
+    """
+    bmis = []
+    for row in table: 
+        try:
+            bmis.append(float(row[5]))
+        except ValueError:
+            continue
+
+    categories = ["Underweight", "Normal", "Overweight", "Obese"]
+    counts = {cat: 0 for cat in categories}
+
+    for bmi in bmis:
+        category = bin_bmi(bmi)
+        counts[category] += 1
+
+    plt.figure()
+    plt.pie(counts.values(), labels=counts.keys(), autopct='%1.1f%%')
+    plt.title("BMI Category Distribution in Health Training Data")
+    plt.show()
+
+def hist_graph(table):
+    """
+    creates a histogram exploring the different binary frequency attributes 
+    
+    table: data we are pulling from 
+    """
+    history_indexes = []
+    history_1 = 0
+    history_z = 0
+    for row in table: 
+        history = row[15]
+        history_indexes.append(history)
+        if history == 0:
+            history_z += 1
+        elif history == 1:
+            history_1 += 1
+
+    history_counts = [history_z, history_1]
+
+    s_1 = 0
+    s_z = 0
+    smoking_i = []
+    for row in table: 
+        smoking = row[11]
+        smoking_i.append(smoking)
+        if smoking == 0:
+            s_z += 1
+        elif smoking == 1:
+            s_1 += 1
+
+    smoking_counts = [s_z, s_1]
+
+
+    a_indexes = []
+    a_1 = 0
+    a_z = 0
+    for row in table: 
+        a = row[12]
+        a_indexes.append(history)
+        if a == 0:
+            a_z += 1
+        elif a == 1:
+            a_1 += 1
+
+    a_counts = [a_z, a_1]
+
+    labels = ['No', 'Yes']
+    x = np.arange(len(labels))
+
+    width = .2
+    plt.figure()
+    plt.bar(x - width, history_counts, width, label='Family History', color='blue')
+    plt.bar(x, smoking_counts, width, label='Smoking', color='orange')
+    plt.bar(x + width, a_counts, width, label='Alcohol', color='pink')
+
+    plt.xticks(x, labels)
+    plt.ylabel("Frequency")
+    plt.title("Binary Label Frequencies: History vs Smoking")
+    plt.legend()
+    plt.show()
+

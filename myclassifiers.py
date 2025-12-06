@@ -4,51 +4,105 @@ from collections import Counter
 
 
 class MyRandomForestClassifier:
+    """Represents a Random Forest Classifier 
+
+    Attributes:
+        n_trees: int [represents number of trees the random forest will be combining together to perform ensemble learning]
+        max_depth: int [max_depth to create the branches: keeps the work down]
+        min_samples_split: int [makes sure the tree can grow relatively deep]
+        n_features: int [number of features that the subset is built off of]
+        m_trees: int [chosen for predictive purposes after]
     """
-    Represents a Random Forest classifier 
-es: 
-
-
-    Notes: 
-    Attribut
-
-
-    """
-    def __init__(self, n_trees=10, max_depth=10, min_samples_split=2, n_features=None):
+    # using N: 10
+    # F: 5 
+    def __init__(self, n_trees=10, max_depth=10, min_samples_split=2, n_features=5, m_trees=4):
+        """
+            initializer for randomForest 
+        """
         self.n_trees = n_trees
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
         self.n_features = n_features
+        self.m_trees = m_trees
         self.trees= []
 
     def fit(self, X, y):
-        self.trees = []
-        for _ in range(self.n_trees):
+        """
+        Fits a Random Forest Classifier, taking advantage of the decision tree classifier 
+        
+        Arguments: 
+            X: The remainder set training values 
+            y: The remainder set testing values 
+        """
+        tree_accs = []
+        for _ in range(self.n_trees):  
+            # decision tree classifier made for each number of number_of_trees 
             tree = MyDecisionTreeClassifier()
-            X_sample, y_sample = self._bootstrap_samples(X, y)
+            # splits into training and validation 
+            X_sample, y_sample, X_val, y_val = self._bootstrap_samples(X, y)
             tree.fit(X_sample, y_sample)
-            self.trees.append(tree)
 
-    def _bootstrap_samples(self, X, y):
+            # error catching: 
+            if len(X_val) > 0:
+                acc = tree.score(X_val, y_val)
+            else: 
+                acc = 0
+
+            tree_accs.append((tree, acc))
+
+            # picking M trees: 
+            tree_accs.sort(key=lambda pair: pair[1], reverse=True)
+            top_m_pairs = tree_accs[:self.m_trees]
+
+            top_m_trees = []
+            for pair in top_m_pairs:
+                tree = pair[0]
+                top_m_trees.append(tree)
+
+            # Save them
+            self.trees = top_m_trees
+
+    def _bootstrap_samples(self, X, y):  
+        """
+        Splits the Remainder set into different validation and testing sites to put into each tree 
+        Happens for each created tree 
+
+        Arguments: 
+            X: a training set that is subsetted from the remainder set for each n tree
+            y: a testingg set that is subsetted from the remainder set for each n tree
+        """
         n_samples = len(X)
-        np.random.seed(0)
-        indexes = np.random.choice(n_samples, n_samples, replace=True)
-        X_sample = [X[i] for i in indexes]
-        y_sample = [y[i] for i in indexes]
-        return X_sample, y_sample
-
+        indices = np.random.choice(n_samples, n_samples, replace=True)
+        train_idx = indices
+        val_idx = list(set(range(n_samples)) - set(train_idx))
+        X_train = [X[i] for i in train_idx]
+        y_train = [y[i] for i in train_idx]
+        X_val = [X[i] for i in val_idx]
+        y_val = [y[i] for i in val_idx]
+        return X_train, y_train, X_val, y_val
 
 
     def _most_common_label(self, y):
+        """
+        Helps with figuring out the most common label from the creation of the trees 
+        
+        y: the label that we are counting 
+        """
+        # makes use of the Counter module 
         counter = Counter(y)
         most_common = counter.most_common(1)[0][0]
         return most_common
 
     def predict(self, X):
+        """
+        predict class for the RandomForestClassifier 
+
+        X: takes an instance, or sets of instances and predicts the classification label
+        """
         predictions = np.array([tree.predict(X) for tree in self.trees])
         # change structure: 
         # want all predictions from same sample for different trees in same inner list 
-        tree_preds = np.swapaxes(predictions, 0, 1)  # shape: (n_samples, n_trees)
+        tree_preds = np.swapaxes(predictions, 0, 1)  # shape: (n_samples, n_trees) - looked at tutorial for this part 
         final_preds = [self._most_common_label(sample_preds) for sample_preds in tree_preds]
         return np.array(final_preds)
 
@@ -62,11 +116,6 @@ class MyDecisionTreeClassifier:
         y_train(list of obj): The target y values (parallel to X_train).
             The shape of y_train is n_samples
         tree(nested list): The extracted tree model.
-
-    Notes:
-        Loosely based on sklearn's DecisionTreeClassifier:
-            https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html
-        Terminology: instance = sample = row and attribute = feature = column
     """
     def __init__(self):
         """Initializer for MyDecisionTreeClassifier.
@@ -85,13 +134,6 @@ class MyDecisionTreeClassifier:
             y_train(list of obj): The target y values (parallel to X_train)
                 The shape of y_train is n_train_samples
 
-        Notes:
-            Since TDIDT is an eager learning algorithm, this method builds a decision tree model
-                from the training data.
-            Build a decision tree using the nested list representation described in class.
-            On a majority vote tie, choose first attribute value based on attribute domain ordering.
-            Store the tree in the tree attribute.
-            Use attribute indexes to construct default attribute names (e.g. "att0", "att1", ...).
         """
         header_length = len(X_train[0])
         header = []
@@ -147,6 +189,13 @@ class MyDecisionTreeClassifier:
             attribute_names = [f"att{i}" for i in range(len(self.X_train[0]))]
         myutils.print_rules(self.tree, [], attribute_names, class_name)
 
+    def score(self, X, y):
+        """
+        Return the accuracy of the classifier on the given test data and labels.
+        """
+        y_pred = self.predict(X)
+        return np.mean(y_pred == y)
+
 
 
 class MyNaiveBayesClassifier:
@@ -157,11 +206,6 @@ class MyNaiveBayesClassifier:
             label in the training set.
         conditionals(nested dict where each class goes to lsit of dicts): The conditional probabilities computed for each
             attribute value/label pair in the training set.
-
-    Notes:
-        Loosely based on sklearn's Naive Bayes classifiers: https://scikit-learn.org/stable/modules/naive_bayes.html
-        You may add additional instance attributes if you would like, just be sure to update this docstring
-        Terminology: instance = sample = row and attribute = feature = column
     """
     def __init__(self):
         """Initializer for MyNaiveBayesClassifier.
@@ -179,12 +223,6 @@ class MyNaiveBayesClassifier:
                 The shape of X_train is (n_train_samples, n_features)
             y_train(list of obj): The target y values (parallel to X_train)
                 The shape of y_train is n_train_samples
-
-        Notes:
-            Since Naive Bayes is an eager learning algorithm, this method computes the prior probabilities
-                and the conditional probabilities for the training data.
-            You are free to choose the most appropriate data structures for storing the priors
-                and conditionals.
         """     
 
         # priors needs to be a dictionary 
@@ -301,10 +339,6 @@ class MyDummyClassifier:
     Attributes:
         most_common_label(obj): whatever the most frequent class label in the
             y_train passed into fit()
-
-    Notes:
-        Loosely based on sklearn's DummyClassifier:
-            https://scikit-learn.org/stable/modules/generated/sklearn.dummy.DummyClassifier.html
     """
     def __init__(self):
         """Initializer for DummyClassifier.
@@ -320,10 +354,6 @@ class MyDummyClassifier:
                 The shape of X_train is (n_train_samples, n_features)
             y_train(list of obj): The target y values (parallel to X_train)
                 The shape of y_train is n_train_samples
-
-        Notes:
-            Since Zero-R only predicts the most frequent class label, this method
-                only saves the most frequent class label.
         """
         options = {}
         for val in y_train:
