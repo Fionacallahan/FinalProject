@@ -3,10 +3,8 @@ import random
 import numpy as np
 
 def binary_precision_score(y_true, y_pred, labels=None, pos_label=None):
-    """Compute the precision (for binary classification). The precision is the ratio tp / (tp + fp)
-        where tp is the number of true positives and fp the number of false positives.
-        The precision is intuitively the ability of the classifier not to label as
-        positive a sample that is negative. The best value is 1 and the worst value is 0.
+    """Computes the precision (for binary classification). Basically the ability of the classifier 
+    to label a false positive. The best value: 1 and the worst value: 0
 
     Args:
         y_true(list of obj): The ground_truth target y values
@@ -20,10 +18,6 @@ def binary_precision_score(y_true, y_pred, labels=None, pos_label=None):
 
     Returns:
         precision(float): Precision of the positive class
-
-    Notes:
-        Loosely based on sklearn's precision_score():
-            https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_score.html
     """
     # best value: 1, worst is zero 
     true_positive = 0
@@ -44,10 +38,7 @@ def binary_precision_score(y_true, y_pred, labels=None, pos_label=None):
     return precision
 
 def binary_recall_score(y_true, y_pred, labels=None, pos_label=None):
-    """Compute the recall (for binary classification). The recall is the ratio tp / (tp + fn) where tp is
-        the number of true positives and fn the number of false negatives.
-        The recall is intuitively the ability of the classifier to find all the positive samples.
-        The best value is 1 and the worst value is 0.
+    """Compute the recall (for binary classification).  Ability of classifier to find all positive samples
 
     Args:
         y_true(list of obj): The ground_truth target y values
@@ -61,10 +52,6 @@ def binary_recall_score(y_true, y_pred, labels=None, pos_label=None):
 
     Returns:
         recall(float): Recall of the positive class
-
-    Notes:
-        Loosely based on sklearn's recall_score():
-            https://scikit-learn.org/stable/modules/generated/sklearn.metrics.recall_score.html
     """
     #similar to precision, but now false negatives 
     true_positive = 0
@@ -85,11 +72,8 @@ def binary_recall_score(y_true, y_pred, labels=None, pos_label=None):
     return recall
 
 def binary_f1_score(y_true, y_pred, labels=None, pos_label=None):
-    """Compute the F1 score (for binary classification), also known as balanced F-score or F-measure.
-        The F1 score can be interpreted as a harmonic mean of the precision and recall,
-        where an F1 score reaches its best value at 1 and worst score at 0.
-        The relative contribution of precision and recall to the F1 score are equal.
-        The formula for the F1 score is: F1 = 2 * (precision * recall) / (precision + recall)
+    """Compute the F1 score (for binary classification)
+    Arguably, the most helpful
 
     Args:
         y_true(list of obj): The ground_truth target y values
@@ -102,11 +86,7 @@ def binary_f1_score(y_true, y_pred, labels=None, pos_label=None):
             to the first label in labels
 
     Returns:
-        f1(float): F1 score of the positive class
-
-    Notes:
-        Loosely based on sklearn's f1_score():
-            https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html
+        f1(float): F1 score of the positive classl
     """
     precision = binary_precision_score(y_true, y_pred, labels, pos_label)
     recall = binary_recall_score(y_true, y_pred, labels, pos_label)
@@ -142,10 +122,6 @@ def train_test_split(X, y, test_size=0.33, random_state=0, shuffle=True):
         X_test(list of list of obj): The list of testing samples
         y_train(list of obj): The list of target y values for training (parallel to X_train)
         y_test(list of obj): The list of target y values for testing (parallel to X_test)
-
-    Note:
-        Loosely based on sklearn's train_test_split():
-            https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html
     """
     import math # for acquiring test samples
 
@@ -203,8 +179,6 @@ def kfold_split(X, n_splits=5, random_state=0, shuffle=False):
         The first n_samples % n_splits folds have size n_samples // n_splits + 1,
             other folds have size n_samples // n_splits, where n_samples is the number of samples
             (e.g. 11 samples and 4 splits, the sizes of the 4 folds are 3, 3, 3, 2 samples)
-        Loosely based on sklearn's KFold split():
-            https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.KFold.html
     """
     k = n_splits
 
@@ -252,10 +226,6 @@ def confusion_matrix(y_true, y_pred, labels):
         matrix(list of list of int): Confusion matrix whose i-th row and j-th column entry
             indicates the number of samples with true label being i-th class
             and predicted label being j-th class
-
-    Notes:
-        Loosely based on sklearn's confusion_matrix():
-            https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html
     """
 
     # set up for visualization
@@ -304,12 +274,7 @@ def accuracy_score(y_true, y_pred, normalize=True):
             Otherwise, return the fraction of correctly classified samples.
 
     Returns:
-        score(float): If normalize == True, return the fraction of correctly classified samples (float),
-            else returns the number of correctly classified samples (int).
-
-    Notes:
-        Loosely based on sklearn's accuracy_score():
-            https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html#sklearn.metrics.accuracy_score
+        score(float)
     """
     true_positive = 0
     #false_positive = 0

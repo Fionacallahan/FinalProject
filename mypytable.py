@@ -79,13 +79,14 @@ class MyPyTable:
 
         return objects
 
-
     def convert_to_numeric(self):
-        """Try to convert each value in the table to a numeric type (float).
+        """
+        Try to convert each value in the table to a numeric type (float).
 
         Notes:
-            Leaves values as-is that cannot be converted to numeric.
+            Leaves values as-is that cannot be converted to numeric
         """
+        
         for value in range(len(self.data)):
             for j in range(len(self.data[0])):
                 try:
@@ -93,18 +94,8 @@ class MyPyTable:
                     self.data[value][j] = converted
                 except ValueError as e:
                     pass
-            
- 
-    def drop_rows(self, row_indexes_to_drop):
-        """Remove rows from the table data.
 
-        Parameters:
-            row_indexes_to_drop (list of int): list of row indexes to remove from the table data.
-        """
-        row_indexes_to_drop.sort(reverse=True)
-        for i in row_indexes_to_drop:
-            self.data.pop(i)
-        # print("New list of data: ", self.data)
+            
 
     def load_from_file(self, filename):
         """Load column names and data from a CSV file.
@@ -145,8 +136,10 @@ class MyPyTable:
             writing.writerow(self.column_names)
             writing.writerows(self.data)
 
+
+    """
     def find_duplicates(self, key_column_names):
-        """Returns a list of indexes representing duplicate rows.
+        Returns a list of indexes representing duplicate rows.
         Rows are identified uniquely based on key_column_names.
 
         Parameters:
@@ -158,7 +151,7 @@ class MyPyTable:
         Notes:
             Subsequent occurrence(s) of a row are considered the duplicate(s).
             The first instance of a row is not considered a duplicate.
-        """
+        
         seen = []
         duplicate_indexes = []
         
@@ -171,6 +164,7 @@ class MyPyTable:
                 seen.append(key)        
 
         return duplicate_indexes
+    """
 
     def remove_rows_with_missing_values(self, name):
         """
