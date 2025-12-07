@@ -1,12 +1,159 @@
 import numpy as np
 from scipy import stats
 import myutils
+import evaluation
 
 from myclassifiers import MyNaiveBayesClassifier,\
     MyDummyClassifier,\
-    MyDecisionTreeClassifier
+    MyDecisionTreeClassifier,\
+    MyRandomForestClassifier
 
 # implement test random forest 
+def test_random_forest_fit():
+    header_interview = ["level", "lang", "tweets", "phd", "interviewed_well"]
+
+    X_train_interview = [
+        ["Senior", "Java", "no", "no"],
+        ["Senior", "Java", "no", "yes"],
+        ["Mid", "Python", "no", "no"],
+        ["Junior", "Python", "no", "no"],
+        ["Junior", "R", "yes", "no"],
+        ["Junior", "R", "yes", "yes"],
+        ["Mid", "R", "yes", "yes"],
+        ["Senior", "Python", "no", "no"],
+        ["Senior", "R", "yes", "no"],
+        ["Junior", "Python", "yes", "no"],
+        ["Senior", "Python", "yes", "yes"],
+        ["Mid", "Python", "no", "yes"],
+        ["Mid", "Java", "yes", "no"],
+        ["Junior", "Python", "no", "yes"]
+    ]
+    y_train_interview = ["False", "False", "True", "True", "True", "False", "True", "False", "True", "True", "True", "True", "True", "False"]
+
+
+    # the building of the tree using entropy from deskcheck
+    interview_tree_solution =   ["Attribute", "att0",                        
+                                ["Value", "Junior",                     
+                                    ["Attribute", "att3",               
+                                        ["Value", "no",
+                                            ["Leaf", "True", 3, 5]      
+                                        ],
+                                        ["Value", "yes",
+                                            ["Leaf", "False", 2, 5]
+                                        ]
+                                    ]
+                                ],
+                                ["Value", "Mid",
+                                    ["Leaf", "True", 4, 14] 
+                                ],
+                                ["Value", "Senior",
+                                    ["Attribute", "att2",
+                                        ["Value", "no",
+                                            ["Leaf", "False", 3, 5] 
+                                        ],
+                                        ["Value", "yes",
+                                            ["Leaf", "True", 2, 5] 
+                                        ]
+                                    ] 
+                                ]
+                            ]
+    
+    remainder_train, remainder_test, remainder_y_train, remainder_y_test = evaluation.train_test_split(X_train_interview, y_train_interview)
+    myInterviewTree = MyRandomForestClassifier(20, 10, 2, 2, 7)
+    myInterviewTree.fit(remainder_train, remainder_y_train)
+
+    # asserting length 
+    assert len(myInterviewTree.trees) == myInterviewTree.m_trees
+    # the most assertions will be in predict()
+
+    myInterviewTree2 = MyRandomForestClassifier(17, 10, 2, 5, 3)
+    myInterviewTree2.fit(remainder_train, remainder_y_train)
+    assert len(myInterviewTree2.trees) == myInterviewTree2.m_trees
+
+
+def test_decision_tree_classifier_predict():
+    header_interview = ["level", "lang", "tweets", "phd", "interviewed_well"]
+
+    X_train_interview = [
+        ["Senior", "Java", "no", "no"],
+        ["Senior", "Java", "no", "yes"],
+        ["Mid", "Python", "no", "no"],
+        ["Junior", "Python", "no", "no"],
+        ["Junior", "R", "yes", "no"],
+        ["Junior", "R", "yes", "yes"],
+        ["Mid", "R", "yes", "yes"],
+        ["Senior", "Python", "no", "no"],
+        ["Senior", "R", "yes", "no"],
+        ["Junior", "Python", "yes", "no"],
+        ["Senior", "Python", "yes", "yes"],
+        ["Mid", "Python", "no", "yes"],
+        ["Mid", "Java", "yes", "no"],
+        ["Junior", "Python", "no", "yes"]
+    ]
+    y_train_interview = ["False", "False", "True", "True", "True", "False", "True", "False", "True", "True", "True", "True", "True", "False"]
+
+    remainder_train, remainder_test, remainder_y_train, remainder_y_test = evaluation.train_test_split(X_train_interview, y_train_interview)
+    myInterviewTree = MyRandomForestClassifier(20, 10, 2, 2, 7)
+    myInterviewTree.fit(remainder_train, remainder_y_train)
+
+    myInterviewTree2 = MyRandomForestClassifier(17, 10, 2, 5, 3)
+    myInterviewTree2.fit(remainder_train, remainder_y_train)
+    # from interview dataset 
+    X1 = ["Junior", "Java", "yes", "no"] 
+    #SHOULD BE True
+    X2 = ["Junior", "Java", "yes", "yes"] 
+    #SHOULD BE false
+    predicted = ["True", "False"]
+
+    predictions = myInterviewTree.predict([X1, X2])
+    assert predictions == predicted
+
+    predictions = myInterviewTree2.predict([X1, X2])
+    assert predictions == predicted
+
+
+
+# to test all random forest related operators 
+def test_most_common_label():
+    clf = MyRandomForestClassifier()
+
+    # Case 1: clear majority
+    labels = ["A", "A", "B", "A", "C"]
+    assert clf._most_common_label(labels) == "A"
+
+import numpy as np
+
+def test_bootstrap_samples_deterministic():
+    # Fix seed for reproducibility
+    np.random.seed(1)
+
+    X = [[i] for i in range(5)]
+    y = [0,1,2,3,4]
+    clf = MyRandomForestClassifier()
+
+    X_train, y_train, X_val, y_val = clf._bootstrap_samples(X, y)
+
+    # checking length
+    assert len(X_train) == len(X)
+    assert len(y_train) == len(y)
+
+    # all samples are covered 
+    all_indices = set(range(len(X)))
+    train_indices = {tuple(x)[0] for x in X_train}
+    val_indices = {tuple(x)[0] for x in X_val}
+    assert train_indices | val_indices == all_indices
+
+
+
+    # checking alignment 
+    for x, label in zip(X_train, y_train):
+        assert x[0] == label
+    for x, label in zip(X_val, y_val):
+        assert x[0] == label
+
+
+    
+
 
 
 def test_decision_tree_classifier_fit():
