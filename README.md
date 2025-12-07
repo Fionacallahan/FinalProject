@@ -1,12 +1,14 @@
 ## What is our project?
 * Exploring: To what extent do lifestyle style choices affect the condition of people's health?
-* We chose analyze risk factors in the health field by using a kaggle dataset in the form of a csv file 
+* We chose to analyze risk factors in the health field by using a kaggle dataset in the form of a csv file 
 
 
 ## How to Run our Project 
 * Clone: [https://github.com/Fionacallahan/FinalProject.git]
-* Our Project should run everything but running the finalProject Juptyr Notebook 
+* Our Project should run everything but run the finalProject Juptyr Notebook to have the whole effect 
 * Our code is intertwined into the markdown cells, so it should all be accessible through this platform 
+* able to test our code by using pytest --verbose 
+    * it will run 9 tests in total 
 
 
 ## How Project is Organized 
