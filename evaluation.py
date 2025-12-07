@@ -72,6 +72,7 @@ def binary_recall_score(y_true, y_pred, labels=None, pos_label=None):
     return recall
 
 def binary_f1_score(y_true, y_pred, labels=None, pos_label=None):
+    
     """Compute the F1 score (for binary classification)
     Arguably, the most helpful
 
